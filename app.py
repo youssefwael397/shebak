@@ -4,6 +4,7 @@ from flask_restful import Api
 from config import mysql_uri
 from db import db
 from models.user import UserModel
+from resources.user import UserRegister, Users, CreateStaticUser
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -27,6 +28,8 @@ def index():
     })
 
 
+api.add_resource(CreateStaticUser, '/api/static/user/create')  # for test
+api.add_resource(UserRegister, '/api/register')
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_restful import Api
 from config import mysql_uri
 from db import db
-
+from models.user import UserModel
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -13,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 
 
 @app.before_first_request
+
 def create_tables():
     db.init_app(app)
     db.create_all()
@@ -24,6 +25,8 @@ def index():
         "status": "ok",
         "message": "Hello World!"
     })
+
+
 
 
 if __name__ == '__main__':

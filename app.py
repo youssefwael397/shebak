@@ -13,7 +13,6 @@ api = Api(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = LOGO_FOLDER
 
 
 @app.before_first_request

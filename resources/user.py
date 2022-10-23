@@ -1,7 +1,10 @@
 from flask_restful import Resource, reqparse, fields
-from numpy import empty
 from models.user import UserModel
+from utils.file_handler import save_logo, delete_logo
 import bcrypt
+import werkzeug
+import uuid
+import os
 
 
 class Users(Resource):
@@ -10,6 +13,8 @@ class Users(Resource):
 
 
 class UserRegister(Resource):
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+
     parser = reqparse.RequestParser()
     parser.add_argument('company_name',
                         type=str,
@@ -26,15 +31,26 @@ class UserRegister(Resource):
                         type=str,
                         required=True,
                         help="This field cannot be blank.")
+    parser.add_argument('logo',
+                        type=werkzeug.datastructures.FileStorage, location='files',
+                        required=False)
 
     def post(self):
         data = UserRegister.parser.parse_args()  # user register data
+        
+        file_name = f"{uuid.uuid4().hex}.png"
+
+        if data['logo']:
+            save_logo(data['logo'], file_name)
+            data['logo'] = file_name
+
         # hashing password before save_to_db
         data['password'] = bcrypt.hashpw(
             data['password'].encode('utf8'), bcrypt.gensalt())
 
         is_exists = UserModel.check_if_user_exists(data)
         if is_exists:
+            delete_logo(file_name)
             return {"message": "This user is already exists"}, 400
 
         user = UserModel(**data)
@@ -65,12 +81,26 @@ class User(Resource):
                             type=str,
                             required=True,
                             help="This field cannot be blank.")
+        parser.add_argument('logo',
+                            type=werkzeug.datastructures.FileStorage, location='files',
+                            required=False)
         data = parser.parse_args()
 
         user = UserModel.find_by_id(user_id)
 
         if not user:
             return {"message": "User not found."}, 404
+        
+        file_name = f"{uuid.uuid4().hex}.png"
+
+        if data['logo']:
+
+            if user.logo:
+                delete_logo(user.logo)
+
+            save_logo(data['logo'], file_name)
+            user.logo = file_name
+        
 
         user.company_name = data['company_name']
         user.email = data['email']
@@ -79,12 +109,8 @@ class User(Resource):
             user.save_to_db()
         except:
             return {"message": "Duplicate data. Please change it."}, 409
-            # return {"message": "An error occurred while updating the user."}, 500
-
 
         return user.json(), 200
-
-
 
     @classmethod
     def delete(cls, user_id):
@@ -93,10 +119,12 @@ class User(Resource):
             return {"message": "User not found."}, 404
         try:
             user.delete_from_db()
+            delete_logo(user.logo)
         except:
             return {"message": "An error occurred while deleting the user."}, 500
 
         return {"message": "User Deleted successfully."}, 201
+
 
 class ChangePassword(Resource):
     @classmethod
@@ -133,8 +161,8 @@ class ChangePassword(Resource):
         # hashing password before save_to_db
         data['new_password'] = bcrypt.hashpw(
             data['new_password'].encode('utf8'), bcrypt.gensalt())
-        
-        # set password to new hashed password 
+
+        # set password to new hashed password
         user.password = data['new_password']
 
         try:
@@ -143,7 +171,6 @@ class ChangePassword(Resource):
             return {"message": "An error occurred while updating the password."}, 500
 
         return user.json(), 200
-
 
 
 class CreateStaticUser(Resource):

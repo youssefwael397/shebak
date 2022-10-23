@@ -1,17 +1,19 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_restful import Api
-from config import mysql_uri
+from config import mysql_uri, LOGO_FOLDER
 from db import db
 from models.user import UserModel
 from resources.user import UserRegister, Users, User, ChangePassword, CreateStaticUser
 from resources.helloWorld import HelloWorld
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = LOGO_FOLDER
 
 
 @app.before_first_request

@@ -1,6 +1,5 @@
-from enum import unique
 from db import db
-
+import os
 
 class UserModel(db.Model):
     __tablename__='users'
@@ -22,7 +21,8 @@ class UserModel(db.Model):
             'company_name': self.company_name,
             'email': self.email,
             'password': self.password,
-            }
+            'logo': f"/static/users/logo/{self.logo}"
+        }
     
     @classmethod    
     def find_by_company_name(cls, company_name):
@@ -45,6 +45,7 @@ class UserModel(db.Model):
     @classmethod
     def find_all(cls):
         return cls.query.all()
+
 
     def save_to_db(self):
         # SQL_ALCHEMY automatically checks if the data is changed, so takes care of both insert

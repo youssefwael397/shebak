@@ -4,3 +4,5 @@ flask_restful
 flask_sqlalchemy
 pymysql
 bcrypt
+werkzeug
+uuid

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_restful import Api
-from config import mysql_uri, LOGO_FOLDER
+from config import mysql_uri
 from db import db
 from models.user import UserModel
 from resources.user import UserRegister, Users, User, ChangePassword, CreateStaticUser

@@ -4,11 +4,11 @@ import os
 class UserModel(db.Model):
     __tablename__='users'
     id = db.Column(db.Integer(), primary_key=True)
-    company_name = db.Column(db.String(50), unique=True, nullable=False)
+    company_name = db.Column(db.String(255), unique=True, nullable=False)
     logo = db.Column(db.String(255), unique=True, nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    persons = db.relationship('PersonModel', backref='UserModel')
+    members = db.relationship('MemberModel', backref='UserModel')
 
     
     def __init__(self, company_name, email, password, logo):

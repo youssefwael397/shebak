@@ -14,7 +14,7 @@ class Users(Resource):
 
 
 class UserRegister(Resource):
-    headers = {"Content-Type": "application/json; charset=utf-8"}
+    # headers = {"Content-Type": "application/json; charset=utf-8"}
 
     parser = reqparse.RequestParser()
     parser.add_argument('company_name',
@@ -42,7 +42,7 @@ class UserRegister(Resource):
         file_name = f"{uuid.uuid4().hex}.png"
 
         if data['logo']:
-            return {"image" : data['logo'].filename} , 
+            # return {"image" : data['logo'].filename} , 
             save_logo(data['logo'], file_name)
             data['logo'] = file_name
 

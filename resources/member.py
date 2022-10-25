@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse, fields
-from models.person import PersonModel
+from models.member import MemberModel
 from utils.file_handler import delete_file, save_file, save_logo, delete_logo
 import bcrypt
 import werkzeug
@@ -8,12 +8,12 @@ import os
 from models.user import UserModel
 
 
-class Persons(Resource):
+class Members(Resource):
     def get(self):
-        return {"persons": [person.json() for person in PersonModel.find_all()]}
+        return {"members": [member.json() for member in MemberModel.find_all()]}
 
 
-class CreatePerson(Resource):
+class CreateMember(Resource):
     # headers = {"Content-Type": "application/json; charset=utf-8"}
 
     parser = reqparse.RequestParser()
@@ -44,39 +44,39 @@ class CreatePerson(Resource):
                         required=True)
 
     def post(self):
-        data = CreatePerson.parser.parse_args()  # person register data
+        data = CreateMember.parser.parse_args()  # member register data
         if not UserModel.find_by_id(data['user_id']):
             return {"message": "This user id is invalid !"} , 404
 
         file_name = f"{uuid.uuid4().hex}.png"
-        save_file(data['image'], file_name, "static/persons/image")
+        save_file(data['image'], file_name, "static/members/image")
         data['image'] = file_name
 
 
-        is_exists = PersonModel.check_if_person_exists(data)
+        is_exists = MemberModel.check_if_member_exists(data)
         if is_exists:
-            delete_file(file_name, "static/persons/image")
-            return {"message": "This person is already exists"}, 400
+            delete_file(file_name, "static/members/image")
+            return {"message": "This member is already exists"}, 400
 
-        person = PersonModel(**data)
+        member = MemberModel(**data)
         try:
-            person.save_to_db()
+            member.save_to_db()
         except:
-            return {"message": "An error occurred while creating the person."}, 500
+            return {"message": "An error occurred while creating the member."}, 500
 
-        return {"message": "Person created successfully."}, 201
+        return {"message": "Member created successfully."}, 201
 
 
-class Person(Resource):
+class Member(Resource):
     @classmethod
-    def get(cls, person_id):
-        person = PersonModel.find_by_id(person_id)
-        if person:
-            return person.json()
-        return {"message": "Person not found."}, 404
+    def get(cls, member_id):
+        member = MemberModel.find_by_id(member_id)
+        if member:
+            return member.json()
+        return {"message": "Member not found."}, 404
 
     @classmethod
-    def put(cls, person_id):
+    def put(cls, member_id):
         parser = reqparse.RequestParser()
         parser.add_argument('name',
                             type=str,
@@ -99,44 +99,58 @@ class Person(Resource):
                             help="This field cannot be blank.",
                             required=False)
 
+        # user_id before token
+        parser.add_argument('user_id',
+                            type=int,
+                            help="This field cannot be blank.",
+                            required=True)
+
         data = parser.parse_args()
 
-        person = PersonModel.find_by_id(person_id)
+        member = MemberModel.find_by_id(member_id)
 
-        if not person:
-            return {"message": "Person not found."}, 404
+        if not member:
+            return {"message": "Member not found."}, 404
+
+        if member.user_id != data['user_id']:
+            return {"message": "Authorization Error"}, 403
 
         file_name = f"{uuid.uuid4().hex}.png"
 
         if data['image']:
-            if person.image:
-                delete_file(person.image, "static/persons/image")
+            if member.image:
+                delete_file(member.image, "static/members/image")
 
-            save_file(data['logo'], file_name, "static/persons/image")
-            person.image = file_name
+            save_file(data['image'], file_name, "static/members/image")
+            member.image = file_name
 
-        person.name = data['name']
-        person.faculty = data['faculty']
-        person.national_id = data['national_id']
-        person.address = data['address']
-        person.email = data['email']
+        member.name = data['name']
+        member.faculty = data['faculty']
+        member.national_id = data['national_id']
+        member.address = data['address']
 
         try:
-            person.save_to_db()
+            member.save_to_db()
         except:
             return {"message": "Duplicate data. Please change it."}, 409
 
-        return person.json(), 200
+        return member.json(), 200
 
     @classmethod
-    def delete(cls, person_id):
-        person = PersonModel.find_by_id(person_id)
-        if not person:
-            return {"message": "Person not found."}, 404
+    def delete(cls, member_id):
+        member = MemberModel.find_by_id(member_id)
+        if not member:
+            return {"message": "Member not found."}, 404
         try:
-            person.delete_from_db()
-            delete_file(person.logo, "static/persons/image")
+            member.delete_from_db()
+            delete_file(member.logo, "static/members/image")
         except:
-            return {"message": "An error occurred while deleting the person."}, 500
+            return {"message": "An error occurred while deleting the member."}, 500
 
-        return {"message": "Person Deleted successfully."}, 201
+        return {"message": "Member Deleted successfully."}, 201
+
+
+class MemberUser(Resource):
+    @classmethod
+    def get(cls, user_id):
+        return {"members": [member.json() for member in MemberModel.find_by_user_id(user_id)]}

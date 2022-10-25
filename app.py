@@ -4,12 +4,15 @@ from flask_restful import Api
 from config import mysql_uri
 from db import db
 from models.user import UserModel
+from models.person import PersonModel
+from resources.person import CreatePerson, Person, Persons
 from resources.user import UserRegister, Users, User, ChangePassword, CreateStaticUser
 from resources.helloWorld import HelloWorld
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 api = Api(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = mysql_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -27,6 +30,11 @@ api.add_resource(UserRegister, '/api/register')
 api.add_resource(Users, '/api/users')
 api.add_resource(User, '/api/users/<int:user_id>')
 api.add_resource(ChangePassword, '/api/changePassword/<int:user_id>')
+# Persons
+api.add_resource(CreatePerson, '/api/persons/create')
+api.add_resource(Persons, '/api/persons')
+api.add_resource(Person, '/api/persons/<int:person_id>')
+
 
 
 if __name__ == '__main__':

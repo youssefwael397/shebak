@@ -1,5 +1,5 @@
 from db import db
-
+import os
 
 class UserModel(db.Model):
     __tablename__='users'
@@ -8,6 +8,8 @@ class UserModel(db.Model):
     logo = db.Column(db.String(255), unique=True, nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    persons = db.relationship('persons', backref='users')
+
     
     def __init__(self, company_name, email, password, logo):
         self.company_name = company_name
@@ -22,7 +24,8 @@ class UserModel(db.Model):
             'email': self.email,
             'logo': self.logo,
             'password': self.password,
-            }
+            'logo': f"/static/users/logo/{self.logo}"
+        }
     
     @classmethod    
     def find_by_company_name(cls, company_name):
@@ -45,6 +48,7 @@ class UserModel(db.Model):
     @classmethod
     def find_all(cls):
         return cls.query.all()
+
 
     def save_to_db(self):
         # SQL_ALCHEMY automatically checks if the data is changed, so takes care of both insert

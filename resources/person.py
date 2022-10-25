@@ -5,6 +5,7 @@ import bcrypt
 import werkzeug
 import uuid
 import os
+from models.user import UserModel
 
 
 class Persons(Resource):
@@ -13,16 +14,16 @@ class Persons(Resource):
 
 
 class CreatePerson(Resource):
-    headers = {"Content-Type": "application/json; charset=utf-8"}
+    # headers = {"Content-Type": "application/json; charset=utf-8"}
 
     parser = reqparse.RequestParser()
+    
     parser.add_argument('name',
                         type=str,
                         required=True,
                         help="This field cannot be blank.")
     parser.add_argument('faculty',
                         type=str,
-                        required=True,
                         help="This field cannot be blank.")
     parser.add_argument('national_id',
                         type=str,
@@ -44,10 +45,13 @@ class CreatePerson(Resource):
 
     def post(self):
         data = CreatePerson.parser.parse_args()  # person register data
+        if not UserModel.find_by_id(data['user_id']):
+            return {"message": "This user id is invalid !"} , 404
 
         file_name = f"{uuid.uuid4().hex}.png"
         save_file(data['image'], file_name, "static/persons/image")
         data['image'] = file_name
+
 
         is_exists = PersonModel.check_if_person_exists(data)
         if is_exists:
@@ -80,7 +84,6 @@ class Person(Resource):
                             help="This field cannot be blank.")
         parser.add_argument('faculty',
                             type=str,
-                            required=True,
                             help="This field cannot be blank.")
         parser.add_argument('national_id',
                             type=str,
@@ -106,7 +109,6 @@ class Person(Resource):
         file_name = f"{uuid.uuid4().hex}.png"
 
         if data['image']:
-
             if person.image:
                 delete_file(person.image, "static/persons/image")
 

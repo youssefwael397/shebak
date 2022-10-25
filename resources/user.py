@@ -1,3 +1,4 @@
+from email import message
 from flask_restful import Resource, reqparse, fields
 from models.user import UserModel
 from utils.file_handler import save_logo, delete_logo
@@ -41,6 +42,7 @@ class UserRegister(Resource):
         file_name = f"{uuid.uuid4().hex}.png"
 
         if data['logo']:
+            return {"image" : data['logo'].filename} , 
             save_logo(data['logo'], file_name)
             data['logo'] = file_name
 

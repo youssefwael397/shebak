@@ -8,7 +8,7 @@ class UserModel(db.Model):
     logo = db.Column(db.String(255), unique=True, nullable=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    persons = db.relationship('persons', backref='users')
+    persons = db.relationship('PersonModel', backref='UserModel')
 
     
     def __init__(self, company_name, email, password, logo):

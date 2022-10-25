@@ -1,12 +1,11 @@
 from db import db
 import os
 
-
 class PersonModel(db.Model):
     __tablename__ = 'persons'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    faculty = db.Column(db.String(255), nullable=False )
+    faculty = db.Column(db.String(255), nullable=True )
     national_id = db.Column(db.String(255), unique=True, nullable=False)
     address = db.Column(db.String(100), nullable=False)
     image = db.Column(db.String(100), nullable=False)
@@ -40,8 +39,8 @@ class PersonModel(db.Model):
         return cls.query.filter_by(national_id=national_id).first()
 
     @classmethod
-    def check_if_person_exists(self, user):
-        if self.find_by_name(user['name']) or self.find_by_email(user['national_id']):
+    def check_if_person_exists(self, person):
+        if self.find_by_national_id(person['national_id']):
             return True
         return False
 
@@ -50,6 +49,10 @@ class PersonModel(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
+    def find_by_user_id(cls, user_id):
+        return cls.query.filter_by(user_id=user_id).all()
+
+    
     def find_all(cls):
         return cls.query.all()
 

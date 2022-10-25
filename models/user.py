@@ -1,4 +1,3 @@
-from enum import unique
 from db import db
 
 
@@ -21,6 +20,7 @@ class UserModel(db.Model):
             'id':self.id,
             'company_name': self.company_name,
             'email': self.email,
+            'logo': self.logo,
             'password': self.password,
             }
     

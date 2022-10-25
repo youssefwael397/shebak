@@ -1,5 +1,4 @@
 from flask_restful import Resource, reqparse, fields
-from numpy import empty
 from models.user import UserModel
 import bcrypt
 

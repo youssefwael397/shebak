@@ -6,7 +6,7 @@ class PersonModel(db.Model):
     __tablename__ = 'persons'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    faculty = db.Column(db.String(255), nullable=False)
+    faculty = db.Column(db.String(255), nullable=False )
     national_id = db.Column(db.String(255), unique=True, nullable=False)
     address = db.Column(db.String(100), nullable=False)
     image = db.Column(db.String(100), nullable=False)
@@ -27,7 +27,7 @@ class PersonModel(db.Model):
             'faculty': self.faculty,
             'national_id': self.national_id,
             'address': self.address,
-            'image': self.image,
+            'image': f"static/persons/image/{self.image}",
             'user_id': self.user_id
         }
 
@@ -40,7 +40,7 @@ class PersonModel(db.Model):
         return cls.query.filter_by(national_id=national_id).first()
 
     @classmethod
-    def check_if_user_exists(self, user):
+    def check_if_person_exists(self, user):
         if self.find_by_name(user['name']) or self.find_by_email(user['national_id']):
             return True
         return False

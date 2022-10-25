@@ -4,6 +4,7 @@ from flask_restful import Api
 from config import mysql_uri
 from db import db
 from models.user import UserModel
+from models.person import PersonModel
 from resources.user import UserRegister, Users, User, ChangePassword, CreateStaticUser
 from resources.helloWorld import HelloWorld
 
